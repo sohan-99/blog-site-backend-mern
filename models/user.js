@@ -1,8 +1,8 @@
 import { Schema, model } from "mongoose";
-import bcryptjs from "bcryptjs"; // Import as default and destructure
+import  bcryptjs   from "bcryptjs"; 
 import jwt from "jsonwebtoken";
 
-const { hash } = bcryptjs;
+const { hash,compare  } =bcryptjs;
 const { sign } = jwt;
 
 const UserSchema = new Schema(
@@ -17,19 +17,21 @@ const UserSchema = new Schema(
   },
   { timestamps: true }
 );
-
 UserSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
     this.password = await hash(this.password, 10);
   }
   next();
 });
-
 UserSchema.methods.generateJWT = async function () {
   return await sign({ id: this._id }, process.env.JWT_SECRET, {
     expiresIn: "30d",
   });
 };
+
+UserSchema.methods.comparePassword = async function (enteredPassword) {
+  return await compare(enteredPassword, this.password);
+}
 
 const User = model("User", UserSchema);
 export default User;
