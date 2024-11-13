@@ -16,7 +16,7 @@ const CommentSchema = new Schema(
       default: null,
     },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true } }
 );
 CommentSchema.virtual("replies", {
   ref: "Comment",

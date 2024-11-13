@@ -6,6 +6,7 @@ import connectDB from "./config/db.js";
 // Routes
 import userRoutes from "./routes/userRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
+import commentRoutes from "./routes/commentRoutes.js";
 import { errorResponserHandler, invalidPathHandler } from "./middleware/errorHandler.js";
 import cors from "cors";
 
@@ -43,7 +44,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
-
+app.use("/api/comments", commentRoutes);
 // Serve static files from the uploads directory
 app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
