@@ -5,6 +5,7 @@ import Post from "../models/post.js";
 import Comment from "../models/Comment.js";
 import { fileRemover } from "../utils/fileRemover.js";
 import { v4 as uuidv4 } from "uuid";
+// create a new post controller
 const createPost = async (req, res, next) => {
   try {
     const post = new Post({
@@ -24,6 +25,7 @@ const createPost = async (req, res, next) => {
     next(error);
   }
 };
+// update the post controller
 const updatePost = async (req, res, next) => {
   try {
     const post = await Post.findOne({ slug: req.params.slug });
@@ -33,17 +35,32 @@ const updatePost = async (req, res, next) => {
       return;
     }
     const upload = uploadPicture.single("postPicture");
+    
     const handleUpdatePostData = async (data) => {
-      const { title, caption, slug, body, tags, categories } = JSON.parse(data);
-      post.title = title || post.title;
-      post.caption = caption || post.caption;
-      post.slug = slug || post.slug;
-      post.body = body || post.body;
-      post.tags = tags || post.tags;
-      post.categories = categories || post.categories;
-      const updatedPost = await post.save();
-      return res.json(updatedPost);
+      try {
+        if (!data) {
+          throw new Error("No data provided for post update.");
+        }
+    
+        // Safely parse the JSON if it exists
+        const parsedData = JSON.parse(data);
+        const { title, caption, slug, body, tags, categories } = parsedData;
+    
+        // Update fields only if they are provided
+        post.title = title || post.title;
+        post.caption = caption || post.caption;
+        post.slug = slug || post.slug;
+        post.body = body || post.body;
+        post.tags = tags || post.tags;
+        post.categories = categories || post.categories;
+    
+        const updatedPost = await post.save();
+        return res.json(updatedPost);
+      } catch (error) {
+        next(error); // Pass the error to the error-handling middleware
+      }
     };
+    
     upload(req, res, async function (err) {
       if (err) {
         const error = new Error(
@@ -73,6 +90,7 @@ const updatePost = async (req, res, next) => {
     next(error);
   }
 };
+// delete post controller
 const deletePost = async (req, res, next) => {
   try {
     const post = await Post.findOneAndDelete({ slug: req.params.slug });
@@ -88,6 +106,7 @@ const deletePost = async (req, res, next) => {
     next(error);
   }
 };
+// get one post controller
 const getPost = async (req, res, next) => {
   try {
     const post = await Post.findOne({ slug: req.params.slug }).populate([
@@ -124,4 +143,17 @@ const getPost = async (req, res, next) => {
     next(error);
   }
 };
-export { createPost, updatePost, deletePost, getPost };
+const getAllPosts = async (req, res, next) => {
+  try {
+    const posts = await Post.find({}).populate([
+      {
+        path: "user",
+        select: ["avatar", "name", "verified"],
+      },
+    ]);
+    res.json(posts);
+  } catch (error) {
+    next(error);
+  }
+};
+export { createPost, updatePost, deletePost, getPost, getAllPosts };
