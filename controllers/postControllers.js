@@ -19,6 +19,7 @@ const createPost = async (req, res, next) => {
       photo: "",
       user: req.user._id,
     });
+    console.log(req.body);
     const createdPost = await post.save();
     return res.json(createdPost);
   } catch (error) {
