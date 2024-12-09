@@ -108,6 +108,48 @@ const deletePost = async (req, res, next) => {
   }
 };
 // get one post controller
+// const getPost = async (req, res, next) => {
+//   try {
+//     const post = await Post.findOne({ slug: req.params.slug }).populate([
+//       {
+//         path: "user",
+//         select: ["avatar", "name"],
+//       },
+//       {
+//         path: "comments",
+//         match: {
+//           check: true,
+//           parent: null,
+//         },
+//         populate: [
+//           {
+//             path: "user",
+//             select: ["avatar", "name"],
+//           },
+//           {
+//             path: "replies",
+//             match: {
+//               check: true,
+//             },
+//             populate: [
+//               {
+//                 path: "user",
+//                 select: ["avatar", "name"],
+//               },
+//             ],
+//           },
+//         ],
+//       },
+//     ]);
+//     if (!post) {
+//       const error = new Error("Post was not found");
+//       return next(error);
+//     }
+//     return res.json(post);
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 const getPost = async (req, res, next) => {
   try {
     const post = await Post.findOne({ slug: req.params.slug }).populate([
@@ -131,14 +173,22 @@ const getPost = async (req, res, next) => {
             match: {
               check: true,
             },
+            populate: [
+              {
+                path: "user",
+                select: ["avatar", "name"],
+              },
+            ],
           },
         ],
       },
     ]);
+
     if (!post) {
       const error = new Error("Post was not found");
       return next(error);
     }
+
     return res.json(post);
   } catch (error) {
     next(error);
